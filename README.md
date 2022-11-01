@@ -4,7 +4,7 @@
 
 # Move That for you
 
-Foundry VTT module for allowing players to move tiles.
+Foundry VTT module for allowing players to move and rotate tiles.
 
 ## Usage
 
@@ -15,3 +15,7 @@ A new button is added to the Tile HUD
 Toggle it to enable/disable the ability for players to move the tile.
 
 ![Tile HUD](https://user-images.githubusercontent.com/7693704/199137052-93c8b8a6-f85e-4c12-af1c-5ceba19cf044.png)
+
+Right-clicking the button will grant the players permission to rotate it.
+
+![Tile HUD Rotate](https://user-images.githubusercontent.com/7693704/199296167-a7251c84-1b8c-4e82-9b44-125128dcf0f3.png)
