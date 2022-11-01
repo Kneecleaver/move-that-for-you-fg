@@ -1,7 +1,7 @@
 const MODULE_ID = 'move-that-for-you';
 
+// Register socket to forward player updates to GMs
 Hooks.once('init', () => {
-  // Register socket to forward player updates to GMs
   game.socket?.on(`module.${MODULE_ID}`, (message) => {
     if (game.user.isGM && message.handlerName === 'tile' && message.type === 'UPDATE') {
       const isResponsibleGM = !game.users
@@ -11,33 +11,109 @@ Hooks.once('init', () => {
       canvas.scene.updateEmbeddedDocuments('Tile', [message.args.data], message.args.options);
     }
   });
+});
+
+function flagControlledPermissions() {
+  return (
+    !game.paused &&
+    (this.document.getFlag(MODULE_ID, 'allowPlayerMove') ||
+      this.document.getFlag(MODULE_ID, 'allowPlayerRotate'))
+  );
+}
+
+function flagControlledDragPermission() {
+  return !game.paused && this.document.getFlag(MODULE_ID, 'allowPlayerMove');
+}
+
+/*
+ * Since game.user is not initialized on init Hook we cannot libWrap permission functions just for players
+ * before references to them are stored in MouseInteractionManager
+ * As a workaround let the canvas load, modify permission functions for existing tiles, and then libWrap them
+ */
+
+Hooks.once('canvasReady', () => {
+  if (game.user.isGM) return;
+
+  canvas.tiles.placeables.forEach((tile) => {
+    const permissions = tile.mouseInteractionManager?.permissions;
+    if (permissions) {
+      // Enable hover, control, and dragging
+      ['hoverIn', 'hoverOut', 'clickLeft'].forEach((fn) => {
+        permissions[fn] = flagControlledPermissions.bind(tile);
+      });
+
+      // Drag only enabled if allowPlayerMove flag is set
+      permissions['dragStart'] = flagControlledDragPermission.bind(tile);
+
+      // HUD always disabled
+      permissions['clickRight'] = () => false;
+    }
+  });
 
   // Libwrap tile control methods for players
-  ['_canDrag', '_canHover', '_canControl'].forEach((method) => {
+  ['_canHover', '_canControl'].forEach((method) => {
     libWrapper.register(
       MODULE_ID,
       `Tile.prototype.${method}`,
-      function (wrapped, ...args) {
-        let result = wrapped(...args);
-        if (game.user.isGM) return result;
-        return !game.paused && this.document.getFlag(MODULE_ID, 'allowPlayerMove');
+      function (...args) {
+        return flagControlledPermissions.call(this);
       },
-      'WRAPPER'
+      'OVERRIDE'
     );
   });
 
   libWrapper.register(
     MODULE_ID,
+    `Tile.prototype._canDrag`,
+    function (...args) {
+      return flagControlledDragPermission.call(this);
+    },
+    'OVERRIDE'
+  );
+
+  // Disable Tile HUD for players
+  libWrapper.register(
+    MODULE_ID,
     `Tile.prototype._canHUD`,
-    function (wrapped, ...args) {
-      let result = wrapped(...args);
-      if (game.user.isGM) return result;
+    function (...args) {
       return false;
     },
-    'WRAPPER'
+    'OVERRIDE'
   );
+
+  // Hook onto tile updates. We want to pass these on to the GM if the players have been
+  // given permission to update tile position and/or rotation
+  Hooks.on('preUpdateTile', (document, data, options, userId) => {
+    if (game.user.id === userId) {
+      // Only allow positional updates
+      let keyNum = Object.keys(data).length;
+
+      if (document.flags?.[MODULE_ID]?.allowPlayerMove) {
+        if ('x' in data) keyNum--;
+        if ('y' in data) keyNum--;
+      }
+
+      if (document.flags?.[MODULE_ID]?.allowPlayerRotate) {
+        if ('rotation' in data) keyNum--;
+      }
+
+      if (keyNum === 1) {
+        4;
+        const message = {
+          handlerName: 'tile',
+          args: { document, data, options },
+          type: 'UPDATE',
+        };
+        game.socket?.emit(`module.${MODULE_ID}`, message);
+        return false;
+      } else if ('rotation' in data && Object.keys(data).length === 2) {
+        return false;
+      }
+    }
+  });
 });
 
+// Hide core tile tools for players, only keeping "select";
 Hooks.on('getSceneControlButtons', (controls) => {
   if (game.user.isGM) return;
 
@@ -45,51 +121,19 @@ Hooks.on('getSceneControlButtons', (controls) => {
     if (controls[i].name === 'tiles') {
       controls[i].visible = true;
 
-      // Remove core tools, only keeping "select";
-      const tools = [];
       const coreTools = ['tile', 'browse', 'foreground'];
       controls[i].tools.forEach((t) => {
-        if (!coreTools.includes(t.name)) {
-          tools.push(t);
+        if (coreTools.includes(t.name)) {
+          t.visible = false;
         }
       });
-
-      controls[i].tools = tools;
 
       return;
     }
   }
 });
 
-Hooks.once('canvasReady', () => {
-  if (!game.user.isGM) {
-    Hooks.on('preUpdateTile', (document, data, options, userId) => {
-      if (game.user.id === userId) {
-        // Only allow positional updates
-        let keyNum = Object.keys(data).length;
-        if ('x' in data) keyNum--;
-        if ('y' in data) keyNum--;
-
-        console.log(document);
-
-        if (document.flags?.[MODULE_ID]?.allowPlayerRotate) {
-          if ('rotation' in data) keyNum--;
-        }
-
-        if (keyNum === 1) {
-          const message = {
-            handlerName: 'tile',
-            args: { document, data, options },
-            type: 'UPDATE',
-          };
-          game.socket?.emit(`module.${MODULE_ID}`, message);
-          return false;
-        }
-      }
-    });
-  }
-});
-
+// Add additional controls to the Tile HUD for GMs
 Hooks.on('renderTileHUD', (hud, form, options) => {
   // Create the controls
   const playerMoveControl = $(`
@@ -110,9 +154,10 @@ Hooks.on('renderTileHUD', (hud, form, options) => {
   // Pre-active the controls if need be
   if (doc.getFlag(MODULE_ID, 'allowPlayerMove')) {
     playerMoveControl.addClass('active');
-    if (doc.getFlag(MODULE_ID, 'allowPlayerRotate')) {
-      rotateControl.addClass('active');
-    }
+  }
+
+  if (doc.getFlag(MODULE_ID, 'allowPlayerRotate')) {
+    rotateControl.addClass('active');
   }
 
   // Register listeners
@@ -133,7 +178,5 @@ Hooks.on('renderTileHUD', (hud, form, options) => {
       doc.setFlag(MODULE_ID, 'allowPlayerRotate', true);
       rotateControl.addClass('active');
     }
-
-    if (!playerMoveControl.hasClass('active')) playerMoveControl.click();
   });
 });
