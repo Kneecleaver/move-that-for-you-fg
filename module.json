@@ -1,0 +1,39 @@
+{
+  "id": "move-that-for-you",
+  "title": "Move That for You",
+  "description": "Allow players to move tiles.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": 10,
+    "verified": "10.286",
+    "maximum": 10
+  },
+  "authors": [
+    {
+      "name": "Aedif",
+      "url": "https://github.com/Aedif",
+      "discord": "Aedif#7268"
+    }
+  ],
+  "scripts": ["move-that-for-you.js"],
+  "styles": [],
+  "dependencies": [
+    {
+      "name": "lib-wrapper",
+      "type": "module"
+    }
+  ],
+  "packs": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "socket": true,
+  "url": "https://github.com/Aedif/move-that-for-you",
+  "manifest": "https://raw.githubusercontent.com/Aedif/move-that-for-you/master/module.json",
+  "download": "https://github.com/Aedif/move-that-for-you/releases/download/1.0.0/move-that-for-you.zip",
+  "readme": "https://github.com/Aedif/move-that-for-you/blob/master/README.md"
+}
