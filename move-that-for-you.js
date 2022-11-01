@@ -1,6 +1,18 @@
 const MODULE_ID = 'move-that-for-you';
 
 Hooks.once('init', () => {
+  // Register settings
+
+  game.settings.register(MODULE_ID, 'allowRotation', {
+    name: game.i18n.format(`${MODULE_ID}.settings.allow-rotation.name`),
+    hint: game.i18n.format(`${MODULE_ID}.settings.allow-rotation.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  // Register socket to forward player updates to GMs
   game.socket?.on(`module.${MODULE_ID}`, (message) => {
     if (game.user.isGM && message.handlerName === 'tile' && message.type === 'UPDATE') {
       const isResponsibleGM = !game.users
@@ -11,6 +23,7 @@ Hooks.once('init', () => {
     }
   });
 
+  // Libwrap tile control methods for players
   ['_canDrag', '_canHover', '_canControl'].forEach((method) => {
     libWrapper.register(
       MODULE_ID,
@@ -67,6 +80,10 @@ Hooks.once('canvasReady', () => {
         let keyNum = Object.keys(data).length;
         if ('x' in data) keyNum--;
         if ('y' in data) keyNum--;
+
+        if (game.settings.get(MODULE_ID, 'allowRotation')) {
+          if ('rotation' in data) keyNum--;
+        }
 
         if (keyNum === 1) {
           const message = {
