@@ -1,11 +1,5 @@
 {
   "move-that-for-you": {
-    "control-title": "Allow players to move this tile",
-    "settings": {
-      "allow-rotation": {
-        "name": "Allow Rotation",
-        "hint": "Allow players to rotate tiles."
-      }
-    }
+    "control-title": "Allow players to move this tile"
   }
 }

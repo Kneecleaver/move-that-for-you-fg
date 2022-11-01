@@ -1,17 +1,6 @@
 const MODULE_ID = 'move-that-for-you';
 
 Hooks.once('init', () => {
-  // Register settings
-
-  game.settings.register(MODULE_ID, 'allowRotation', {
-    name: game.i18n.format(`${MODULE_ID}.settings.allow-rotation.name`),
-    hint: game.i18n.format(`${MODULE_ID}.settings.allow-rotation.hint`),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
   // Register socket to forward player updates to GMs
   game.socket?.on(`module.${MODULE_ID}`, (message) => {
     if (game.user.isGM && message.handlerName === 'tile' && message.type === 'UPDATE') {
@@ -81,7 +70,9 @@ Hooks.once('canvasReady', () => {
         if ('x' in data) keyNum--;
         if ('y' in data) keyNum--;
 
-        if (game.settings.get(MODULE_ID, 'allowRotation')) {
+        console.log(document);
+
+        if (document.flags?.[MODULE_ID]?.allowPlayerRotate) {
           if ('rotation' in data) keyNum--;
         }
 
@@ -100,20 +91,31 @@ Hooks.once('canvasReady', () => {
 });
 
 Hooks.on('renderTileHUD', (hud, form, options) => {
+  // Create the controls
   const playerMoveControl = $(`
-  <div class="control-icon " data-action="playerMove">
+<div class="control-icon " data-action="playerMove">
+  <div>
     <i title="${game.i18n.format(
       'move-that-for-you.control-title'
     )}" class="fas fa-people-carry"></i>
-  </div>`);
+    <i class="allowRotate fas fa-sync fa-2xs"></i>
+  </div>
+</div>
+`);
+  const rotateControl = playerMoveControl.find('.allowRotate');
   form.find('div.col.right').last().append(playerMoveControl);
 
   const doc = hud.object.document;
 
+  // Pre-active the controls if need be
   if (doc.getFlag(MODULE_ID, 'allowPlayerMove')) {
     playerMoveControl.addClass('active');
+    if (doc.getFlag(MODULE_ID, 'allowPlayerRotate')) {
+      rotateControl.addClass('active');
+    }
   }
 
+  // Register listeners
   playerMoveControl.click(async () => {
     if (playerMoveControl.hasClass('active')) {
       await doc.unsetFlag(MODULE_ID, 'allowPlayerMove');
@@ -122,5 +124,16 @@ Hooks.on('renderTileHUD', (hud, form, options) => {
       doc.setFlag(MODULE_ID, 'allowPlayerMove', true);
       playerMoveControl.addClass('active');
     }
+  });
+  playerMoveControl.contextmenu(async () => {
+    if (rotateControl.hasClass('active')) {
+      await doc.unsetFlag(MODULE_ID, 'allowPlayerRotate');
+      rotateControl.removeClass('active');
+    } else {
+      doc.setFlag(MODULE_ID, 'allowPlayerRotate', true);
+      rotateControl.addClass('active');
+    }
+
+    if (!playerMoveControl.hasClass('active')) playerMoveControl.click();
   });
 });

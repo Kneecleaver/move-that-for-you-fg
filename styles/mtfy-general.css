@@ -1,0 +1,11 @@
+.control-icon > div > i.allowRotate {
+  position: absolute;
+  top: 111.2%;
+  left: 38%;
+  color: rgba(254, 100, 1, 0.8);
+  opacity: 0;
+}
+
+.control-icon > div > i.allowRotate.active {
+  opacity: 100;
+}
