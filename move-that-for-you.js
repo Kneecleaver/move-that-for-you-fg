@@ -1,7 +1,9 @@
+import TileBoundConfig from './app/tileBoundConfig.js';
+
 const MODULE_ID = 'move-that-for-you';
 
-// Register socket to forward player updates to GMs
 Hooks.once('init', () => {
+  // Register socket to forward player updates to GMs
   game.socket?.on(`module.${MODULE_ID}`, (message) => {
     if (game.user.isGM && message.handlerName === 'tile' && message.type === 'UPDATE') {
       const isResponsibleGM = !game.users
@@ -10,6 +12,43 @@ Hooks.once('init', () => {
       if (!isResponsibleGM) return;
       canvas.scene.updateEmbeddedDocuments('Tile', [message.args.data], message.args.options);
     }
+  });
+
+  // Register settings
+  game.settings.registerMenu(MODULE_ID, 'configureBounds', {
+    name: game.i18n.format(`${MODULE_ID}.settings.configure-bounds.name`),
+    hint: game.i18n.format(`${MODULE_ID}.settings.configure-bounds.hint`),
+    label: '',
+    scope: 'world',
+    icon: 'fas fa-cog',
+    type: TileBoundConfig,
+    restricted: true,
+  });
+
+  game.settings.register(MODULE_ID, 'fitInBounds', {
+    name: game.i18n.localize(`${MODULE_ID}.settings.fit-in-bounds.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.fit-in-bounds.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  // Register keybindings
+  game.keybindings.register(MODULE_ID, 'configureBoundsKey', {
+    name: game.i18n.localize(`${MODULE_ID}.settings.configure-bounds-key.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.configure-bounds-key.hint`),
+    editable: [
+      {
+        key: 'KeyB',
+        modifiers: ['Shift'],
+      },
+    ],
+    onDown: () => {
+      new TileBoundConfig().render(true);
+    },
+    restricted: true,
+    precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
   });
 });
 
@@ -98,13 +137,51 @@ Hooks.once('canvasReady', () => {
       }
 
       if (keyNum === 1) {
-        4;
-        const message = {
-          handlerName: 'tile',
-          args: { document, data, options },
-          type: 'UPDATE',
-        };
-        game.socket?.emit(`module.${MODULE_ID}`, message);
+        // If it's a position update we need to check if it's within the defined bounds for this scene
+        let boundCheckPassed = false;
+        if ('x' in data || 'y' in data) {
+          const canvasBounds = canvas.scene.getFlag(MODULE_ID, 'bounds') || [];
+          if (canvasBounds.length) {
+            const x = 'x' in data ? data.x : document.x;
+            const y = 'y' in data ? data.y : document.y;
+            const width = document.width;
+            const height = document.height;
+
+            const fitInBounds = game.settings.get(MODULE_ID, 'fitInBounds');
+
+            canvasBounds.forEach((b) => {
+              if (fitInBounds) {
+                if (
+                  x >= b.x1 &&
+                  x <= b.x2 &&
+                  y >= b.y1 &&
+                  y <= b.y2 &&
+                  x + width <= b.x2 &&
+                  y + height <= b.y2
+                ) {
+                  boundCheckPassed = true;
+                }
+              } else {
+                if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2) {
+                  boundCheckPassed = true;
+                }
+              }
+            });
+          } else {
+            boundCheckPassed = true;
+          }
+        } else {
+          boundCheckPassed = true;
+        }
+
+        if (boundCheckPassed) {
+          const message = {
+            handlerName: 'tile',
+            args: { document, data, options },
+            type: 'UPDATE',
+          };
+          game.socket?.emit(`module.${MODULE_ID}`, message);
+        }
         return false;
       } else if ('rotation' in data && Object.keys(data).length === 2) {
         return false;
@@ -142,7 +219,7 @@ Hooks.on('renderTileHUD', (hud, form, options) => {
     <i title="${game.i18n.format(
       'move-that-for-you.control-title'
     )}" class="fas fa-people-carry"></i>
-    <i class="allowRotate fas fa-sync fa-2xs"></i>
+    <i class="allowRotate fas fa-sync fa-lg"></i>
   </div>
 </div>
 `);
@@ -178,5 +255,45 @@ Hooks.on('renderTileHUD', (hud, form, options) => {
       doc.setFlag(MODULE_ID, 'allowPlayerRotate', true);
       rotateControl.addClass('active');
     }
+  });
+});
+
+/*
+ * If Mass Edit is active, add checkboxes to the config forms
+ */
+
+Hooks.once('ready', () => {
+  if (!game.user.isGM || !game.modules.get('multi-token-edit')?.active) return;
+  Hooks.on('renderTileConfig', (app, html, data) => {
+    const isInjected = html.find(`input[name="flags.${MODULE_ID}.allowPlayerMove"]`).length > 0;
+    if (isInjected) return;
+
+    const allowMove = app.object.getFlag(MODULE_ID, 'allowPlayerMove');
+    const allowRotate = app.object.getFlag(MODULE_ID, 'allowPlayerRotate');
+
+    const newHtml = `
+  <div class="form-group">
+    <label>${game.i18n.localize(`${MODULE_ID}.tile-config.move.label`)}</label>
+    <div class="form-fields">
+        <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerMove" ${
+      allowMove ? 'checked' : ''
+    }>
+    </div>
+    <p class="notes">${game.i18n.localize(`${MODULE_ID}.tile-config.move.note`)}</p>
+  </div>
+
+  <div class="form-group">
+    <label>${game.i18n.localize(`${MODULE_ID}.tile-config.rotate.label`)}</label>
+    <div class="form-fields">
+        <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerRotate" ${
+      allowRotate ? 'checked' : ''
+    }>
+    </div>
+    <p class="notes">${game.i18n.localize(`${MODULE_ID}.tile-config.rotate.note`)}</p>
+  </div>
+`;
+
+    html.find(`input[name="texture.tint"]`).closest('.form-group').after(newHtml);
+    app.setPosition({ height: 'auto' });
   });
 });

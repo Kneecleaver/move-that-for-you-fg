@@ -1,5 +1,40 @@
 {
   "move-that-for-you": {
-    "control-title": "Allow players to move this tile"
+    "control-title": "Allow players to move this tile",
+    "tile-config": {
+      "move": {
+        "label": "Player Move",
+        "note": "Allow players to move the tile"
+      },
+      "rotate": {
+        "label": "Player Rotate",
+        "note": "Allow players to rotate the tile"
+      }
+    },
+    "app": {
+      "pick-bounds": "Pick Bounds",
+      "clear-bounds": "Clear Bounds"
+    },
+    "errors": {
+      "no-scene": "An active scene required."
+    },
+    "info": {
+      "cleared-bounds": "Cleared bounds for scene {id}",
+      "new-bounds": "New bounds defined for scene {id} : {bounds}"
+    },
+    "settings": {
+      "configure-bounds": {
+        "name": "Tile Bound Config",
+        "hint": "Configure tile bounds for the current scene."
+      },
+      "fit-in-bounds": {
+        "name": "Tile must fit within bounds",
+        "hint": "Only updates that fit the the whole tile within the defined bounds will be permitted."
+      },
+      "configure-bounds-key": {
+        "name": "Tile Bound Config",
+        "hint": "Opens tile bound configuration for the current scene."
+      }
+    }
   }
 }

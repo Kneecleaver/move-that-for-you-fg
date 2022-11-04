@@ -1,8 +1,9 @@
 .control-icon > div > i.allowRotate {
-  position: absolute;
-  top: 111.2%;
-  left: 38%;
+  float: left;
+  margin-top: -21px;
+  margin-left: 2px;
   color: rgba(254, 100, 1, 0.8);
+
   opacity: 0;
 }
 

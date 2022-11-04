@@ -1,3 +1,17 @@
+# 1.3.0
+
+- New setting: **Tile Bound Config**
+  - Allows to define bounds within which players will be able to move tiles
+  - Any number of bounds can be defined for each scene
+- New settings: **Tile must fit within bounds**
+  - By default only the top-left corner of the tile must sit within bounds
+  - When this setting is enabled the whole tile must fit within the bounds
+- New key-binding: **Tile Bound Config**
+  - Opens Tile Bound Config window without needing to go through module settings
+- If **Mass Edit** module is active **Player Move** and **Player Rotate** fields will be added to tile configuration forms
+  - Allows for mass granting of permissions to players
+- Fixed Token HUD visual bug when additional buttons are added by other modules
+
 # 1.2.0
 
 - Removed the need to libWrap tile functions for GMs
