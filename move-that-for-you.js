@@ -10,7 +10,8 @@ Hooks.once('init', () => {
         .filter((user) => user.isGM && (user.active || user.isActive))
         .some((other) => other.id < game.user.id);
       if (!isResponsibleGM) return;
-      canvas.scene.updateEmbeddedDocuments('Tile', [message.args.data], message.args.options);
+      const scene = game.collections.get('Scene').get(message.args.sceneId);
+      scene.updateEmbeddedDocuments('Tile', [message.args.data], message.args.options);
     }
   });
 
@@ -177,7 +178,7 @@ Hooks.once('canvasReady', () => {
         if (boundCheckPassed) {
           const message = {
             handlerName: 'tile',
-            args: { document, data, options },
+            args: { document, data, options, sceneId: canvas.scene.id },
             type: 'UPDATE',
           };
           game.socket?.emit(`module.${MODULE_ID}`, message);

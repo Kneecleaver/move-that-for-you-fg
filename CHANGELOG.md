@@ -1,3 +1,7 @@
+# 1.3.1
+
+- GM is no longer required to be present on the same scene as the player when the tiles are moved
+
 # 1.3.0
 
 - New setting: **Tile Bound Config**
