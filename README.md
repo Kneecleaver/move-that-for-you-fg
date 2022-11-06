@@ -14,8 +14,13 @@ A new button is added to the Tile HUD
 
 Toggle it to enable/disable the ability for players to move the tile.
 
-![Tile HUD](https://user-images.githubusercontent.com/7693704/199137052-93c8b8a6-f85e-4c12-af1c-5ceba19cf044.png)
+![Tile HUD](https://user-images.githubusercontent.com/7693704/200051048-a23da814-f853-45aa-9521-078d7e009caf.png)
+
 
 Right-clicking the button will grant the players permission to rotate it.
 
-![Tile HUD Rotate](https://user-images.githubusercontent.com/7693704/199296167-a7251c84-1b8c-4e82-9b44-125128dcf0f3.png)
+![Tile HUD Rotate](https://user-images.githubusercontent.com/7693704/200051114-4c5caae8-1d73-4354-9582-71bd0c898601.png)
+
+Tile placement can also be restricted to bounding boxes you can draw by either going to modules settings > **Tile Bound Config** or pressing the shortcut key **Shift+B**.
+
+![Bounding Box](https://user-images.githubusercontent.com/7693704/200052370-2d1ff976-be8e-417e-8c30-5bf1a36199f1.png)
