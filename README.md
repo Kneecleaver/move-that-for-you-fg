@@ -8,7 +8,7 @@ Foundry VTT module for granting players permissions to move/rotate tiles and tok
 
 ## Usage
 
-Once the module is activated for tiles and/or tokens via (**Tile Controls** and **Token Controls** settings) a new button will be added to their HUDs:
+Once the module is activated for tiles and/or tokens via **Tile Controls** and **Token Controls** settings a new button will be added to their HUDs:
 
 ![Control Butoon](https://user-images.githubusercontent.com/7693704/199137202-0fe5e7ae-380d-4e11-b800-8f0bda38b1f6.png)
 
