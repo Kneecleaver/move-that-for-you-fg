@@ -20,6 +20,6 @@ Right-clicking the button will grant the players permission to rotate them:
 
 ![HUD Rotate](https://user-images.githubusercontent.com/7693704/200051114-4c5caae8-1d73-4354-9582-71bd0c898601.png)
 
-Tile placement can also be restricted to bounding boxes you can draw by either going to modules settings > **Boundary Configuration** or pressing the shortcut key **Shift+B**.
+Movement can also be restricted to boundaries you can draw by either going to modules settings > **Boundary Configuration** or pressing the shortcut key **Shift+B**.
 
 ![Bounding Box](https://user-images.githubusercontent.com/7693704/200052370-2d1ff976-be8e-417e-8c30-5bf1a36199f1.png)
