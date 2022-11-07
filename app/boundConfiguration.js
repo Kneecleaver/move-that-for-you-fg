@@ -1,20 +1,22 @@
+import { MODULE_ID } from '../utils/config.js';
+
 export default class TileBoundConfig extends FormApplication {
   constructor() {
     super({}, {});
     if (!canvas.scene) {
-      throw game.i18n.localize(`move-that-for-you.errors.no-scene`);
+      throw game.i18n.localize(`${MODULE_ID}.errors.no-scene`);
     }
     this.scene = canvas.scene;
   }
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      id: 'move-that-for-you-bound-config',
+      id: `${MODULE_ID}-bound-config`,
       classes: ['sheet'],
-      template: 'modules/move-that-for-you/templates/tileBoundConfig.html',
+      template: `modules/${MODULE_ID}/templates/tileBoundConfig.html`,
       resizable: false,
       minimizable: false,
-      title: 'Tile Bound Config',
+      title: game.i18n.format(`${MODULE_ID}.settings.configure-bounds.name`),
       width: 350,
     });
   }
@@ -30,9 +32,9 @@ export default class TileBoundConfig extends FormApplication {
 
   _onClearBounds() {
     if (canvas?.id) {
-      this.scene.unsetFlag('move-that-for-you', 'bounds');
+      this.scene.unsetFlag(MODULE_ID, 'bounds');
       ui.notifications.info(
-        game.i18n.format(`move-that-for-you.info.cleared-bounds`, { id: this.scene.id })
+        game.i18n.format(`${MODULE_ID}.info.cleared-bounds`, { id: this.scene.id })
       );
     }
   }
@@ -56,7 +58,7 @@ export default class TileBoundConfig extends FormApplication {
       const minY = Math.floor(Math.min(position.start.y, position.end.y));
       const maxY = Math.floor(Math.max(position.start.y, position.end.y));
 
-      const canvasBounds = configApp.scene.getFlag('multi-token-edit', 'bounds') ?? [];
+      const canvasBounds = configApp.scene.getFlag(MODULE_ID, 'bounds') ?? [];
 
       canvasBounds.push({
         x1: minX,
@@ -65,10 +67,10 @@ export default class TileBoundConfig extends FormApplication {
         y2: maxY,
       });
 
-      configApp.scene.setFlag('move-that-for-you', 'bounds', canvasBounds);
+      configApp.scene.setFlag(MODULE_ID, 'bounds', canvasBounds);
 
       ui.notifications.info(
-        game.i18n.format(`move-that-for-you.info.new-bounds`, {
+        game.i18n.format(`${MODULE_ID}.info.new-bounds`, {
           id: configApp.scene.id,
           bounds: `(x:${minX}, y:${minY}) (x:${maxX}, y:${maxY})`,
         })

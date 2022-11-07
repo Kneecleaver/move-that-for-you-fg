@@ -1,3 +1,9 @@
+# 1.4.0
+
+- Added support for Tokens
+- New Settings: **Tile Controls** and **Token Controls**
+  - Allows enabling/disabling of the module per placeable type
+
 # 1.3.2
 
 - Fixing corrupted release
