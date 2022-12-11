@@ -1,3 +1,7 @@
+# 1.4.1
+
+- ForgeVTT related bug fix
+
 # 1.4.0
 
 - Added support for Tokens

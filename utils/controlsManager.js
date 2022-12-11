@@ -72,6 +72,13 @@ function registerUpdateHook(type) {
       // Only allow positional updates
       let keyNum = Object.keys(data).length;
 
+      // ForgeVTT specific fix. For some reason Forge always appends img key even if the update is not updating the image
+      if (typeof ForgeAPI !== 'undefined') {
+        if ('img' in data && data.img === undefined) {
+          keyNum--;
+        }
+      }
+
       if (doc.flags?.[MODULE_ID]?.allowPlayerMove) {
         if ('x' in data) keyNum--;
         if ('y' in data) keyNum--;
