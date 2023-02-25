@@ -54,6 +54,15 @@ Hooks.once('init', () => {
     default: false,
   });
 
+  game.settings.register(MODULE_ID, 'enableHUDButtons', {
+    name: game.i18n.localize(`${MODULE_ID}.settings.enable-hud-buttons.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.enable-hud-buttons.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   // Register keybindings
   game.keybindings.register(MODULE_ID, 'configureBoundsKey', {
     name: game.i18n.localize(`${MODULE_ID}.settings.configure-bounds-key.name`),

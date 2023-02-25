@@ -1,3 +1,10 @@
+# 1.5.0
+
+- New Setting: `Insert Permission Button to HUD`
+  - Enabled by default
+  - Inserts a permission control button to Tile/Token HUDs
+- Added examples to toggle `move` and `rotate` permissions via macros
+
 # 1.4.1
 
 - ForgeVTT related bug fix

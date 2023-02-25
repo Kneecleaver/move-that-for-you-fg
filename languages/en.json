@@ -42,6 +42,10 @@
       "enable-token-controls": {
         "name": "Token Controls",
         "hint": "Activates the module for tokens. (GAME RELOAD REQUIRED)"
+      },
+      "enable-hud-buttons": {
+        "name": "Insert Permission Button to HUD",
+        "hint": "When enabled a new button will be added to Tile/Token HUDs to control module permissions."
       }
     }
   }

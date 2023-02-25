@@ -1,13 +1,19 @@
 import { MODULE_ID } from './config.js';
 
 export function registerHUD() {
-  if (game.settings.get(MODULE_ID, 'enableTileControls')) registerHUDButton('Tile');
-  if (game.settings.get(MODULE_ID, 'enableTokenControls')) registerHUDButton('Token');
+  registerHUDButton('Tile');
+  registerHUDButton('Token');
 }
 
 function registerHUDButton(type) {
   // Add additional controls for GMs
   Hooks.on(`render${type}HUD`, (hud, form, options) => {
+    if (
+      !game.settings.get(MODULE_ID, 'enableHUDButtons') ||
+      !game.settings.get(MODULE_ID, `enable${type}Controls`)
+    )
+      return;
+
     // Create the controls
     const playerMoveControl = $(`
     <div class="control-icon " data-action="playerMove">
