@@ -10,7 +10,7 @@ export default class TileBoundConfig extends FormApplication {
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       id: `${MODULE_ID}-bound-config`,
       classes: ['sheet'],
       template: `modules/${MODULE_ID}/templates/tileBoundConfig.html`,
@@ -33,9 +33,7 @@ export default class TileBoundConfig extends FormApplication {
   _onClearBounds() {
     if (canvas?.id) {
       this.scene.unsetFlag(MODULE_ID, 'bounds');
-      ui.notifications.info(
-        game.i18n.format(`${MODULE_ID}.info.cleared-bounds`, { id: this.scene.id })
-      );
+      ui.notifications.info(game.i18n.format(`${MODULE_ID}.info.cleared-bounds`, { id: this.scene.id }));
     }
   }
 

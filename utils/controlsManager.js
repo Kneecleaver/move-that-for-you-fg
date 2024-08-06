@@ -6,9 +6,9 @@ function libWrapControlMethods(type, layer) {
   libWrapper.register(
     MODULE_ID,
     `${type}.prototype._canDrag`,
-    function (wrapped, ...args) {
-      let result = wrapped(...args);
-      if (this.document.canUserModify(game.user, 'update')) {
+    function (wrapped, user, event) {
+      let result = wrapped(user, event);
+      if (this.document.canUserModify(user, 'update')) {
         return result;
       } else {
         return !game.paused && this.document.getFlag(MODULE_ID, 'allowPlayerMove');
@@ -25,8 +25,7 @@ function libWrapControlMethods(type, layer) {
       if (result) return result;
       return (
         !game.paused &&
-        (this.document.getFlag(MODULE_ID, 'allowPlayerMove') ||
-          this.document.getFlag(MODULE_ID, 'allowPlayerRotate'))
+        (this.document.getFlag(MODULE_ID, 'allowPlayerMove') || this.document.getFlag(MODULE_ID, 'allowPlayerRotate'))
       );
     },
     'WRAPPER'
@@ -50,8 +49,7 @@ function libWrapControlMethods(type, layer) {
         if (result) return result;
         return (
           !game.paused &&
-          (this.document.getFlag(MODULE_ID, 'allowPlayerMove') ||
-            this.document.getFlag(MODULE_ID, 'allowPlayerRotate'))
+          (this.document.getFlag(MODULE_ID, 'allowPlayerMove') || this.document.getFlag(MODULE_ID, 'allowPlayerRotate'))
         );
       },
       'WRAPPER'
@@ -68,7 +66,7 @@ function registerUpdateHook(type) {
   // Hook onto placeable updates. We want to pass these on to the GM if the players have been
   // given permission to update position and/or rotation
   Hooks.on(`preUpdate${type}`, (doc, data, options, userId) => {
-    if (game.user.id === userId && !doc._object.document.canUserModify(game.user, 'update')) {
+    if (game.user.id === userId && !doc.canUserModify(game.user, 'update')) {
       // Only allow positional updates
       let keyNum = Object.keys(data).length;
 
@@ -86,6 +84,8 @@ function registerUpdateHook(type) {
 
       if (doc.flags?.[MODULE_ID]?.allowPlayerRotate) {
         if ('rotation' in data) keyNum--;
+      } else if ('rotation' in data && doc.rotation === data.rotation) {
+        keyNum--;
       }
 
       if (keyNum === 1) {
@@ -103,14 +103,7 @@ function registerUpdateHook(type) {
 
             canvasBounds.forEach((b) => {
               if (fitInBounds) {
-                if (
-                  x >= b.x1 &&
-                  x <= b.x2 &&
-                  y >= b.y1 &&
-                  y <= b.y2 &&
-                  x + width <= b.x2 &&
-                  y + height <= b.y2
-                ) {
+                if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2 && x + width <= b.x2 && y + height <= b.y2) {
                   boundCheckPassed = true;
                 }
               } else {
@@ -134,10 +127,8 @@ function registerUpdateHook(type) {
           };
           game.socket?.emit(`module.${MODULE_ID}`, message);
         }
-        return false;
-      } else if ('rotation' in data && Object.keys(data).length === 2) {
-        return false;
       }
+      return false;
     }
   });
 }

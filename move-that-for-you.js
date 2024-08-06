@@ -7,9 +7,9 @@ Hooks.once('init', () => {
   // Register socket to forward player updates to GMs
   game.socket?.on(`module.${MODULE_ID}`, (message) => {
     if (game.user.isGM && message.type === 'UPDATE') {
-      const isResponsibleGM = !game.users
-        .filter((user) => user.isGM && (user.active || user.isActive))
-        .some((other) => other.id < game.user.id);
+      const isResponsibleGM = game.users
+        .filter((u) => u.active && u.isGM)
+        .sort((a, b) => b.role - a.role || a.id.compare(b.id))[0]?.isSelf;
       if (!isResponsibleGM) return;
       const scene = game.collections.get('Scene').get(message.args.sceneId);
       scene.updateEmbeddedDocuments(message.handlerName, [message.args.data], message.args.options);
@@ -141,9 +141,7 @@ Hooks.once('ready', () => {
     <div class="form-group">
       <label>${game.i18n.localize(`${MODULE_ID}.tile-config.move.label`)}</label>
       <div class="form-fields">
-          <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerMove" ${
-        allowMove ? 'checked' : ''
-      }>
+          <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerMove" ${allowMove ? 'checked' : ''}>
       </div>
       <p class="notes">${game.i18n.localize(`${MODULE_ID}.tile-config.move.note`)}</p>
     </div>
@@ -151,9 +149,7 @@ Hooks.once('ready', () => {
     <div class="form-group">
       <label>${game.i18n.localize(`${MODULE_ID}.tile-config.rotate.label`)}</label>
       <div class="form-fields">
-          <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerRotate" ${
-        allowRotate ? 'checked' : ''
-      }>
+          <input type="checkbox" name="flags.${MODULE_ID}.allowPlayerRotate" ${allowRotate ? 'checked' : ''}>
       </div>
       <p class="notes">${game.i18n.localize(`${MODULE_ID}.tile-config.rotate.note`)}</p>
     </div>

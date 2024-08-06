@@ -1,3 +1,7 @@
+# 2.0.0
+
+- v12 Support
+
 # 1.5.0
 
 - New Setting: `Insert Permission Button to HUD`

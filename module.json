@@ -1,9 +1,9 @@
 {
-  "name": "move-that-for-you",
+  "id": "move-that-for-you",
   "title": "Move That for You",
   "description": "Allow players to move tiles.",
-  "version": "1.5.0",
-  "download": "https://github.com/Aedif/move-that-for-you/releases/download/1.5.0/move-that-for-you.zip",
+  "version": "2.0.0",
+  "download": "https://github.com/Aedif/move-that-for-you/releases/download/2.0.0/move-that-for-you.zip",
   "url": "https://github.com/Aedif/move-that-for-you",
   "manifest": "https://raw.githubusercontent.com/Aedif/move-that-for-you/master/module.json",
   "author": "Aedif",
@@ -14,8 +14,10 @@
       "discord": "Aedif#7268"
     }
   ],
-  "minimumCoreVersion": "10",
-  "compatibleCoreVersion": "10",
+  "compatibility": {
+    "minimum": 12,
+    "verified": "12"
+  },
   "esmodules": ["move-that-for-you.js"],
   "scripts": [],
   "styles": ["styles/mtfy-general.css"],
@@ -26,11 +28,13 @@
       "path": "languages/en.json"
     }
   ],
-  "dependencies": [
-    {
-      "name": "lib-wrapper",
-      "type": "module"
-    }
-  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "lib-wrapper",
+        "type": "module"
+      }
+    ]
+  },
   "socket": true
 }
