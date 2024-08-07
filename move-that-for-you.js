@@ -79,6 +79,21 @@ Hooks.once('init', () => {
     restricted: true,
     precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
   });
+
+  // Disable Tile resize handle for user who don't have Tile update permissions
+  libWrapper.register(
+    MODULE_ID,
+    `Tile.prototype._draw`,
+    async function (wrapped, ...args) {
+      let result = await wrapped(...args);
+      if (!this.document.canUserModify(game.user, 'update')) {
+        this.frame.handle.eventMode = 'none';
+        this.frame.handle.alpha = 0;
+      }
+      return result;
+    },
+    'WRAPPER'
+  );
 });
 
 /*

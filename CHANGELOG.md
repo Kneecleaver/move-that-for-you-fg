@@ -1,3 +1,7 @@
+# 2.0.1
+
+- Players will no longer be able to resize tiles
+
 # 2.0.0
 
 - v12 Support

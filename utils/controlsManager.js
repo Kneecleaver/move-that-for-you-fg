@@ -67,67 +67,60 @@ function registerUpdateHook(type) {
   // given permission to update position and/or rotation
   Hooks.on(`preUpdate${type}`, (doc, data, options, userId) => {
     if (game.user.id === userId && !doc.canUserModify(game.user, 'update')) {
-      // Only allow positional updates
-      let keyNum = Object.keys(data).length;
-
-      // ForgeVTT specific fix. For some reason Forge always appends img key even if the update is not updating the image
-      if (typeof ForgeAPI !== 'undefined') {
-        if ('img' in data && data.img === undefined) {
-          keyNum--;
-        }
-      }
+      let update = {};
 
       if (doc.flags?.[MODULE_ID]?.allowPlayerMove) {
-        if ('x' in data) keyNum--;
-        if ('y' in data) keyNum--;
+        if ('x' in data) update.x = data.x;
+        if ('y' in data) update.y = data.y;
       }
 
       if (doc.flags?.[MODULE_ID]?.allowPlayerRotate) {
-        if ('rotation' in data) keyNum--;
-      } else if ('rotation' in data && doc.rotation === data.rotation) {
-        keyNum--;
+        if ('rotation' in data) update.rotation = data.rotation;
       }
 
-      if (keyNum === 1) {
-        // If it's a position update we need to check if it's within the defined bounds for this scene
-        let boundCheckPassed = false;
-        if ('x' in data || 'y' in data) {
-          const canvasBounds = canvas.scene.getFlag(MODULE_ID, 'bounds') || [];
-          if (canvasBounds.length) {
-            const x = 'x' in data ? data.x : doc.x;
-            const y = 'y' in data ? data.y : doc.y;
-            const width = doc.width;
-            const height = doc.height;
+      if (foundry.utils.isEmpty(update)) return false;
 
-            const fitInBounds = game.settings.get(MODULE_ID, 'fitInBounds');
+      update._id = doc.id;
 
-            canvasBounds.forEach((b) => {
-              if (fitInBounds) {
-                if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2 && x + width <= b.x2 && y + height <= b.y2) {
-                  boundCheckPassed = true;
-                }
-              } else {
-                if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2) {
-                  boundCheckPassed = true;
-                }
+      // If it's a position update we need to check if it's within the defined bounds for this scene
+      let boundCheckPassed = false;
+      if ('x' in data || 'y' in data) {
+        const canvasBounds = canvas.scene.getFlag(MODULE_ID, 'bounds') || [];
+        if (canvasBounds.length) {
+          const x = 'x' in data ? data.x : doc.x;
+          const y = 'y' in data ? data.y : doc.y;
+          const width = doc.width;
+          const height = doc.height;
+
+          const fitInBounds = game.settings.get(MODULE_ID, 'fitInBounds');
+
+          canvasBounds.forEach((b) => {
+            if (fitInBounds) {
+              if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2 && x + width <= b.x2 && y + height <= b.y2) {
+                boundCheckPassed = true;
               }
-            });
-          } else {
-            boundCheckPassed = true;
-          }
+            } else {
+              if (x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2) {
+                boundCheckPassed = true;
+              }
+            }
+          });
         } else {
           boundCheckPassed = true;
         }
-
-        if (boundCheckPassed) {
-          const message = {
-            handlerName: type,
-            args: { doc, data, options, sceneId: canvas.scene.id },
-            type: 'UPDATE',
-          };
-          game.socket?.emit(`module.${MODULE_ID}`, message);
-        }
+      } else {
+        boundCheckPassed = true;
       }
+
+      if (boundCheckPassed) {
+        const message = {
+          handlerName: type,
+          args: { doc, data: update, options, sceneId: canvas.scene.id },
+          type: 'UPDATE',
+        };
+        game.socket?.emit(`module.${MODULE_ID}`, message);
+      }
+
       return false;
     }
   });
@@ -136,6 +129,7 @@ function registerUpdateHook(type) {
 export function setupControls() {
   if (game.settings.get(MODULE_ID, 'enableTileControls')) {
     libWrapControlMethods('Tile', canvas.tiles);
+
     registerUpdateHook('Tile');
   }
 
