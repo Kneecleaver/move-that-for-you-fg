@@ -3,7 +3,7 @@
   "title": "Move That for You",
   "description": "Allow players to move tiles.",
   "version": "2.0.1",
-  "download": "https://https://github.com/Kneecleaver/move-that-for-you-fg/releases/download/2.0.1/move-that-for-you.zip",
+  "download": "https://https://github.com/Kneecleaver/move-that-for-you-fg/releases/download/2.0.1/move-that-for-you-fg.zip",
   "url": "https://https://github.com/Kneecleaver/move-that-for-you-fg",
   "manifest": "https://raw.githubusercontent.com/Kneecleaver/move-that-for-you-fg/master/module.json",
   "author": "Aedif",
@@ -18,7 +18,7 @@
     "minimum": 12,
     "verified": "12"
   },
-  "esmodules": ["move-that-for-you.js"],
+  "esmodules": ["move-that-for-you-fg.js"],
   "scripts": [],
   "styles": ["styles/mtfy-general.css"],
   "languages": [
