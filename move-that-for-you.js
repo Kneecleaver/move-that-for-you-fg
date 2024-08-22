@@ -121,7 +121,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
     if (controls[i].name === 'tiles') {
       controls[i].visible = true;
 
-      const coreTools = ['tile', 'browse', 'foreground'];
+      const coreTools = ['tile', 'browse'];
       controls[i].tools.forEach((t) => {
         if (coreTools.includes(t.name)) {
           t.visible = false;
