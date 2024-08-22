@@ -18,7 +18,7 @@
     "minimum": 12,
     "verified": "12"
   },
-  "esmodules": ["move-that-for-you-fg.js"],
+  "esmodules": ["move-that-for-you.js"],
   "scripts": [],
   "styles": ["styles/mtfy-general.css"],
   "languages": [
